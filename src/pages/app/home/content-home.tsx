@@ -14,6 +14,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import type { Movie } from '@/api/interface/movie'
 import { nowPlaying } from '@/api/now-playing'
+import SkeletonMovieCard from '@/components/skeleton-card'
 
 export function ContentHome() {
   const { register, watch } = useForm({
@@ -29,13 +30,14 @@ export function ContentHome() {
     queryFn: nowPlaying,
   })
 
-  const { data: searchMoviesFn } = useQuery({
+  const { data: searchMoviesFn, isLoading: isLoadingSearch } = useQuery({
     queryKey: ['search-movies', query],
     queryFn: () => searchMovies(query),
     enabled: query.length > 1, // só busca se tiver pelo menos 2 letras
   })
 
-  const moviesToRender = query.length > 1 ? searchMoviesFn : nowPlayingFn
+  const moviesToRender =
+    query.length > 1 ? searchMoviesFn || [] : nowPlayingFn || []
 
   return (
     <div className="space-y-7">
@@ -83,14 +85,29 @@ export function ContentHome() {
       </div>
 
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-        {moviesToRender?.map((movie: Movie) => (
-          <MovieCard
-            key={movie.id}
-            title={movie.title}
-            date={movie.release_date}
-            image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-          />
-        ))}
+        {isLoadingSearch || !moviesToRender ? (
+          <>
+            <SkeletonMovieCard />
+            <SkeletonMovieCard />
+            <SkeletonMovieCard />
+            <SkeletonMovieCard />
+            <SkeletonMovieCard />
+          </>
+        ) : moviesToRender.length === 0 ? (
+          <div className="col-span-full w-full py-10 text-center">
+            <h2 className="text-2xl font-semibold">Nenhum filme encontrado</h2>
+            <p className="text-gray-400">Tente buscar outro nome…</p>
+          </div>
+        ) : (
+          moviesToRender.map((movie: Movie) => (
+            <MovieCard
+              key={movie.id}
+              title={movie.title}
+              date={movie.release_date}
+              image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+            />
+          ))
+        )}
       </div>
     </div>
   )
