@@ -19,6 +19,7 @@ export function CardDialog(movie: MovieCardProps) {
           className="mx-auto h-65 w-[70%] rounded-xl bg-cover"
         />
         <DialogTitle>{movie.title}</DialogTitle>
+        <DialogDescription>{movie.overview}</DialogDescription>
         <DialogDescription>{movie.date}</DialogDescription>
       </DialogHeader>
 

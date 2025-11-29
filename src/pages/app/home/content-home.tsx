@@ -121,6 +121,7 @@ export function ContentHome() {
               title={movie.title}
               date={movie.release_date}
               image={`https://image.tmdb.org/t/p/w780${movie.poster_path}`}
+              overview={movie.overview}
             />
           ))
         )}
