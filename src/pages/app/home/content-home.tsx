@@ -1,13 +1,11 @@
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { searchMovies } from '@/api/search-movie'
 import MovieCard from '@/components/card'
 import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -15,29 +13,57 @@ import { useQuery } from '@tanstack/react-query'
 import type { Movie } from '@/api/interface/movie'
 import { nowPlaying } from '@/api/now-playing'
 import SkeletonMovieCard from '@/components/skeleton-card'
+import { moviePopular } from '@/api/movie-popular'
+import { trending } from '@/api/trending'
 
 export function ContentHome() {
-  const { register, watch } = useForm({
+  const { register, watch, control } = useForm({
     defaultValues: {
       query: '',
+      filters: 'now-Playing-movie',
     },
   })
 
   const query = watch('query')
+  const filterTypeSelect = watch('filters')
 
   const { data: nowPlayingFn } = useQuery({
     queryKey: ['now-playing'],
     queryFn: nowPlaying,
   })
 
+  const { data: moviePopularFn } = useQuery({
+    queryKey: ['movie-popular'],
+    queryFn: moviePopular,
+  })
+
+  const { data: trendingFn } = useQuery({
+    queryKey: ['trending'],
+    queryFn: trending,
+  })
+
   const { data: searchMoviesFn, isLoading: isLoadingSearch } = useQuery({
     queryKey: ['search-movies', query],
     queryFn: () => searchMovies(query),
-    enabled: query.length > 1, // só busca se tiver pelo menos 2 letras
+    enabled: query.length > 1,
   })
 
-  const moviesToRender =
-    query.length > 1 ? searchMoviesFn || [] : nowPlayingFn || []
+  let moviesToRender = []
+
+  if (query.length > 1) {
+    // ---------- MODO BUSCA ----------
+
+    moviesToRender = searchMoviesFn
+  } else {
+    // ---------- MODO POPULAR ----------
+    if (filterTypeSelect === 'now-Playing-movie') {
+      moviesToRender = nowPlayingFn || []
+    } else if (filterTypeSelect === 'movies-popular') {
+      moviesToRender = moviePopularFn || []
+    } else if (filterTypeSelect === 'trending') {
+      moviesToRender = trendingFn
+    }
+  }
 
   return (
     <div className="space-y-7">
@@ -54,33 +80,23 @@ export function ContentHome() {
         </div>
 
         <div className="flex w-full items-center justify-end gap-5">
-          <Select>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Preços" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>all</SelectLabel>
-                <SelectItem value="all">todos</SelectItem>
-                <SelectItem value="pay">pago</SelectItem>
-                <SelectItem value="free">gratuito</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-
-          <Select>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Relevacia" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>all</SelectLabel>
-                <SelectItem value="all">mais relevante</SelectItem>
-                <SelectItem value="pay">menos relevante</SelectItem>
-                <SelectItem value="free">tendencias</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <Controller
+            name="filters"
+            control={control}
+            defaultValue="now-Playing-movie"
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filmes" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="now-Playing-movie">Lançamentos</SelectItem>
+                  <SelectItem value="movies-popular">Mais popular</SelectItem>
+                  <SelectItem value="trending">Tendencia</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
       </div>
 
@@ -104,7 +120,7 @@ export function ContentHome() {
               key={movie.id}
               title={movie.title}
               date={movie.release_date}
-              image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+              image={`https://image.tmdb.org/t/p/w780${movie.poster_path}`}
             />
           ))
         )}

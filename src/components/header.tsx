@@ -1,23 +1,32 @@
-import { Home, Menu, MoveIcon } from 'lucide-react'
+import { Film, Home, Menu } from 'lucide-react'
 import { NavLink } from './nav-link'
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
+import { ModeToggle } from './mode-toggle'
 
 export function Header() {
   return (
-    <header className="flex h-20 items-center justify-around border-b">
+    <header className="flex h-20 items-center justify-around">
       <h1 className="text-3xl font-semibold tracking-tighter whitespace-nowrap">
         GoodMovies
       </h1>
 
       <div className="hidden items-center gap-5 md:flex">
         <NavLink to="/">
-          <Home className="h-4 w-4" />
+          <Home className="h-6 w-6" />
           home
         </NavLink>
 
-        <NavLink to="/movie">Filmes</NavLink>
+        <NavLink to="/movie">
+          <Film className="h-6 w-6" />
+          Filmes
+        </NavLink>
 
-        <NavLink to="/series">Serie</NavLink>
+        <NavLink to="/series">
+          <Film className="h-6 w-6" />
+          Séries
+        </NavLink>
+
+        <ModeToggle />
       </div>
 
       <div className="md:hidden">
@@ -28,19 +37,15 @@ export function Header() {
 
           <SheetContent side="right" className="flex flex-col gap-6 p-6 pt-20">
             <NavLink to="/">
-              <Home className="h-4 w-4" />
+              <Home className="h-6 w-6" />
               Home
             </NavLink>
 
-            <NavLink to="/movie">
-              <MoveIcon className="h-4 w-4" />
-              Filmes
-            </NavLink>
+            <NavLink to="/movie">Filmes</NavLink>
 
-            <NavLink to="/series">
-              <MoveIcon className="h-4 w-4" />
-              Serie
-            </NavLink>
+            <NavLink to="/series">Serie</NavLink>
+
+            <ModeToggle />
           </SheetContent>
         </Sheet>
       </div>
