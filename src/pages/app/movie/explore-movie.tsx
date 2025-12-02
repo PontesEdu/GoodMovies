@@ -14,9 +14,12 @@ import type { Movie } from '@/api/interface/movie'
 import { nowPlaying } from '@/api/now-playing'
 import SkeletonMovieCard from '@/components/skeleton-card'
 import { moviePopular } from '@/api/movie-popular'
-import { trending } from '@/api/trending'
+import { trending } from '@/api/movie-trending'
+import { moviesDay } from '@/api/movies-day'
+import { moviesWeek } from '@/api/movies-week'
+import { moviesTopRated } from '@/api/movies-top-rated'
 
-export function ContentHome() {
+export function ExploreMovie() {
   const { register, watch, control } = useForm({
     defaultValues: {
       query: '',
@@ -42,6 +45,21 @@ export function ContentHome() {
     queryFn: trending,
   })
 
+  const { data: moviesDayFn } = useQuery({
+    queryKey: ['movie-day'],
+    queryFn: moviesDay,
+  })
+
+  const { data: moviesWeekFn } = useQuery({
+    queryKey: ['movie-week'],
+    queryFn: moviesWeek,
+  })
+
+  const { data: moviesTopRatedFn } = useQuery({
+    queryKey: ['movie-top-rated'],
+    queryFn: moviesTopRated,
+  })
+
   const { data: searchMoviesFn, isLoading: isLoadingSearch } = useQuery({
     queryKey: ['search-movies', query],
     queryFn: () => searchMovies(query),
@@ -62,6 +80,12 @@ export function ContentHome() {
       moviesToRender = moviePopularFn || []
     } else if (filterTypeSelect === 'trending') {
       moviesToRender = trendingFn
+    } else if (filterTypeSelect === 'movies-day') {
+      moviesToRender = moviesDayFn || []
+    } else if (filterTypeSelect === 'movies-week') {
+      moviesToRender = moviesWeekFn || []
+    } else if (filterTypeSelect === 'movie-top-rated') {
+      moviesToRender = moviesTopRatedFn || []
     }
   }
 
@@ -91,8 +115,13 @@ export function ContentHome() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="now-Playing-movie">Lançamentos</SelectItem>
+                  <SelectItem value="movie-top-rated">
+                    mais comentado
+                  </SelectItem>
                   <SelectItem value="movies-popular">Mais popular</SelectItem>
                   <SelectItem value="trending">Tendencia</SelectItem>
+                  <SelectItem value="movies-day">Em Alta hoje</SelectItem>
+                  <SelectItem value="movies-week">Em Alta na semana</SelectItem>
                 </SelectContent>
               </Select>
             )}
