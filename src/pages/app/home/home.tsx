@@ -1,5 +1,6 @@
 import { BannerHome } from '@/pages/app/home/banner-home'
 import { ExploreHome } from './explore-home'
+import { CarouselCard } from '@/components/corousel-card'
 
 export function Home() {
   return (
@@ -11,6 +12,7 @@ export function Home() {
       </div>
 
       <div className="mx-auto max-w-[1250px] p-5">
+        <CarouselCard title="Tendencias" />
         <ExploreHome />
       </div>
     </div>
